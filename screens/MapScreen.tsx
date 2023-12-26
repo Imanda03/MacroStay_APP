@@ -1,4 +1,4 @@
-import {View, Text, Pressable} from 'react-native';
+import {View, Text, Pressable, Image} from 'react-native';
 import React, {useEffect, useRef} from 'react';
 import {useRoute} from '@react-navigation/native';
 import MapView, {Marker} from 'react-native-maps';
@@ -6,19 +6,12 @@ import MapView, {Marker} from 'react-native-maps';
 const MapScreen = () => {
   const route = useRoute();
   const mapView = useRef(null);
-  const coordinates = [];
-  const details = route.params.searchResults.map(item =>
-    item.properties?.map(prop => {
-      coordinates.push({
-        latitude: Number(prop.latitude),
-        longitude: Number(prop.longitude),
-      });
-      //   return {
-      //     title: prop.title,
-      //     description: prop.description,
-      //     image: prop.image,
-      //     price: prop.newPrice,
-      //   };
+  const coordinates: any = [];
+
+  const details = route.params?.searchResults.map((item: any) =>
+    coordinates.push({
+      latitude: Number(item.latitude),
+      longitude: Number(item.longitude),
     }),
   );
 
@@ -32,36 +25,58 @@ const MapScreen = () => {
       },
     });
   });
+
+  const renderCustomMarker = (item: any) => (
+    <Marker
+      key={item.id}
+      title={item.name}
+      coordinate={{
+        latitude: Number(item.latitude),
+        longitude: Number(item.longitude),
+      }}>
+      <Pressable
+        onPress={() => {
+          // Handle marker press if needed
+        }}
+        style={{
+          alignItems: 'center',
+        }}>
+        <View
+          style={{
+            backgroundColor: '#003580',
+            paddingHorizontal: 7,
+            paddingVertical: 4,
+            borderRadius: 8,
+          }}>
+          <Text
+            style={{
+              fontSize: 15,
+              color: 'white',
+              fontWeight: 'bold',
+            }}>
+            Rs. {item.newPrice}
+          </Text>
+        </View>
+        <Image
+          source={{uri: item.image}}
+          style={{
+            width: 30,
+            height: 30,
+            marginTop: 5,
+            borderRadius: 15,
+            borderWidth: 2,
+            borderColor: 'white',
+          }}
+        />
+      </Pressable>
+    </Marker>
+  );
+
   return (
-    <View>
-      <MapView ref={mapView} style={{width: '100%', height: '100%'}}>
-        {route.params.searchResults.map(item =>
-          item.properties.map(property => (
-            <Marker
-              title={property.name}
-              coordinate={{
-                latitude: Number(property.latitude),
-                longitude: Number(property.longitude),
-              }}>
-              <Pressable
-                style={{
-                  backgroundColor: '#003580',
-                  paddingHorizontal: 7,
-                  paddingVertical: 4,
-                  borderRadius: 4,
-                }}>
-                <Text
-                  style={{
-                    fontSize: 15,
-                    color: 'white',
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                  }}>
-                  {property.newPrice}
-                </Text>
-              </Pressable>
-            </Marker>
-          )),
+    <View style={{flex: 1}}>
+      <MapView ref={mapView} style={{flex: 1}}>
+        {route.params?.searchResults.map((item: any) =>
+          renderCustomMarker(item),
         )}
       </MapView>
     </View>

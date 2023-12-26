@@ -16,7 +16,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import DatePicker from 'react-native-date-ranges';
-import {geocode} from 'react-geocode';
 import {
   BottomModal,
   ModalButton,
@@ -26,7 +25,6 @@ import {
   SlideAnimation,
 } from 'react-native-modals';
 import GetLocation from 'react-native-get-location';
-import Geolocation from '@react-native-community/geolocation';
 
 const Home = () => {
   const [selectedDates, setSelectedDates] = useState<Object>();
@@ -37,19 +35,22 @@ const Home = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [location, setLocation] = useState<any>('');
 
+  const place: any = route?.params?.input;
+  const id: any = route?.params?.id;
+
   const navigation = useNavigation();
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
       title: 'MacroStay',
       headerTitleStyle: {
-        fontSize: 20,
+        fontSize: 26,
         fontWeight: 'bold',
         color: 'white',
       },
       headerStyle: {
-        backgroundColor: '#003580',
-        height: 100,
+        backgroundColor: '#350b11',
+        height: 85,
         borderBottomColor: 'transparent',
         shadowColor: 'transparent',
       },
@@ -101,7 +102,8 @@ const Home = () => {
   //   }
   // };
 
-  const searchPlaces = (place: any) => {
+  const searchPlaces = (place: any, id: any) => {
+    console.log(place, id);
     if (!route.params || !selectedDates) {
       Alert.alert(
         'Invalid Details',
@@ -109,7 +111,6 @@ const Home = () => {
         [
           {
             text: 'OK',
-            onPress: () => console.log('OK'),
           },
         ],
         {cancelable: false},
@@ -123,8 +124,10 @@ const Home = () => {
         adults: number;
         children: number;
         selectedDates: any;
+        id: any;
       } = {
         place: place,
+        id: id,
         rooms: rooms,
         adults: adults,
         children: children,
@@ -192,9 +195,7 @@ const Home = () => {
               }}>
               <Ionicons name="search" size={24} color="black" />
               <TextInput
-                placeholder={
-                  route.params ? route.params.input : 'Enter Your Destination'
-                }
+                placeholder={route.params ? place : 'Enter Your Destination'}
                 placeholderTextColor="black"
               />
             </Pressable>
@@ -227,7 +228,7 @@ const Home = () => {
                     alignItems: 'center',
                     marginRight: 'auto',
                   },
-                  headerStyle: {backgroundColor: '#003580'},
+                  headerStyle: {backgroundColor: '#350b11'},
                   contentText: {
                     fontSize: 14,
                     flexDirection: 'row',
@@ -267,13 +268,13 @@ const Home = () => {
 
             {/* Search Button */}
             <Pressable
-              onPress={() => searchPlaces(route?.params.input)}
+              onPress={() => searchPlaces(place, id)}
               style={{
                 paddingHorizontal: 10,
                 borderColor: '#FFC72C',
                 borderWidth: 2,
                 paddingVertical: 15,
-                backgroundColor: '#2a52be',
+                backgroundColor: '#350b11',
               }}>
               <Text
                 style={{
@@ -301,7 +302,7 @@ const Home = () => {
                 width: 200,
                 height: 150,
                 borderRadius: 10,
-                backgroundColor: '#003580',
+                backgroundColor: '#52151e',
                 marginTop: 10,
                 padding: 20,
                 marginHorizontal: 20,
@@ -330,7 +331,7 @@ const Home = () => {
                 width: 200,
                 height: 150,
                 borderRadius: 10,
-                backgroundColor: '#9397B9',
+                backgroundColor: '#a6888c',
                 borderWidth: 0.8,
                 marginTop: 10,
                 padding: 20,

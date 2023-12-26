@@ -47,7 +47,7 @@ const Aminities = () => {
           <View
             style={{
               margin: 10,
-              backgroundColor: '#007FFF',
+              backgroundColor: '#756666',
               paddingHorizontal: 11,
               paddingVertical: 5,
               borderRadius: 25,

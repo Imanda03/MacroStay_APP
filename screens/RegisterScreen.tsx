@@ -1,3 +1,4 @@
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -5,85 +6,107 @@ import {
   TextInput,
   Pressable,
   Alert,
+  ScrollView,
 } from 'react-native';
-import React, {useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
-import {createUserWithEmailAndPassword} from 'firebase/auth';
-import {auth, db} from '../firebase';
-import {doc, setDoc} from '@firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useMutation} from '@tanstack/react-query';
+import axios from 'axios';
 
-const RegisterScreen = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
+interface RegisterFormData {
+  username: string;
+  email: string;
+  password: string;
+  city: string;
+}
 
-  const navigation = useNavigation();
+const registerUser = async ({
+  username,
+  email,
+  password,
+  city,
+}: RegisterFormData): Promise<any> => {
+  try {
+    const response = await axios.post(
+      'http://192.168.68.138:8000/api/auth/register',
+      {
+        username,
+        email,
+        password,
+        city,
+      },
+    );
+    const userData = response.data;
+    return userData;
+  } catch (error: any) {
+    console.error('Registration Failed', error.response.data.message);
+  }
+};
+
+const RegisterScreen = ({navigation}: any) => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
+  const [city, setCity] = useState<string>('');
+
+  const mutation = useMutation<any, Error, RegisterFormData, unknown>({
+    mutationFn: registerUser,
+    onSuccess: (data: any) => {
+      console.log('Registration successful', data.message);
+      navigation.navigate('Login');
+    },
+    onError: (error: any) => {
+      console.error('Registration error', error.data);
+    },
+  });
 
   const register = () => {
-    if (email === '' || password === '' || phone === '') {
+    if (email === '' || password === '' || city === '' || username === '') {
       Alert.alert('Invalid Details', 'Please enter all your information', [
         {
           text: 'OK',
         },
       ]);
+    } else {
+      mutation.mutate({username, email, password, city});
     }
-
-    createUserWithEmailAndPassword(auth, email, password).then(
-      async userCredentials => {
-        const user = userCredentials.user;
-        const uid = user.uid;
-
-        setDoc(doc(db, 'users', `${uid}`), {
-          email: user.email,
-          phone: phone,
-        });
-        AsyncStorage.setItem(
-          'tokenUser',
-          await userCredentials.user.getIdToken(uid),
-        );
-      },
-    );
   };
+
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: 'white',
-        padding: 10,
-        alignItems: 'center',
-      }}>
-      <KeyboardAvoidingView>
-        <View
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white', padding: 10}}>
+      <ScrollView contentContainerStyle={{flexGrow: 1}}>
+        <KeyboardAvoidingView
+          behavior="padding"
           style={{
+            flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            marginTop: 100,
           }}>
-          <Text style={{color: '#003580', fontSize: 17, fontWeight: '700'}}>
-            Register
-          </Text>
-          <Text
-            style={{
-              color: 'black',
-              marginTop: 18,
-              fontSize: 18,
-              fontWeight: '500',
-            }}>
-            Create an Account
-          </Text>
-        </View>
-
-        <View style={{marginTop: 50}}>
           <View>
             <Text style={{color: 'black', fontSize: 17, fontWeight: '600'}}>
-              Phone Number
+              Full Name
             </Text>
             <TextInput
-              value={phone}
-              onChangeText={text => setPhone(text)}
-              placeholder="eg 98...."
+              value={username}
+              onChangeText={text => setUsername(text)}
+              placeholder="Jogn Willam"
+              placeholderTextColor="black"
+              style={{
+                color: 'black',
+                borderBottomColor: 'gray',
+                borderBottomWidth: 1,
+                marginVertical: 10,
+                width: 300,
+              }}
+            />
+          </View>
+          <View>
+            <Text style={{color: 'black', fontSize: 17, fontWeight: '600'}}>
+              City
+            </Text>
+            <TextInput
+              value={city}
+              onChangeText={text => setCity(text)}
+              placeholder="Kathmandu"
               placeholderTextColor="black"
               style={{
                 color: 'black',
@@ -131,38 +154,38 @@ const RegisterScreen = () => {
               }}
             />
           </View>
-        </View>
 
-        <Pressable
-          onPress={() => register()}
-          style={{
-            width: 200,
-            backgroundColor: '#003580',
-            padding: 15,
-            borderRadius: 7,
-            marginTop: 50,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}>
-          <Text
+          <Pressable
+            onPress={() => register()}
             style={{
-              textAlign: 'center',
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: 17,
+              width: 200,
+              backgroundColor: '#003580',
+              padding: 15,
+              borderRadius: 7,
+              marginTop: 50,
+              marginLeft: 'auto',
+              marginRight: 'auto',
             }}>
-            Register
-          </Text>
-        </Pressable>
+            <Text
+              style={{
+                textAlign: 'center',
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: 17,
+              }}>
+              Register
+            </Text>
+          </Pressable>
 
-        <Pressable
-          onPress={() => navigation.goBack('Login')}
-          style={{marginTop: 20}}>
-          <Text style={{textAlign: 'center', color: 'gray', fontSize: 17}}>
-            Already have an account? Sign In
-          </Text>
-        </Pressable>
-      </KeyboardAvoidingView>
+          <Pressable
+            onPress={() => navigation.goBack()}
+            style={{marginTop: 20}}>
+            <Text style={{textAlign: 'center', color: 'gray', fontSize: 17}}>
+              Already have an account? Sign In
+            </Text>
+          </Pressable>
+        </KeyboardAvoidingView>
+      </ScrollView>
     </SafeAreaView>
   );
 };

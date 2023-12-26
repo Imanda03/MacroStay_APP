@@ -9,6 +9,7 @@ const RoomScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [selectedRoom, setSelectedRoom] = useState([]);
+  const [roomid, setRoomId] = useState([]);
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -19,17 +20,26 @@ const RoomScreen = () => {
         color: 'white',
       },
       headerStyle: {
-        backgroundColor: '#003580',
+        backgroundColor: '#350b11',
         height: 100,
         borderBottomColor: 'transparent',
         shadowColor: 'transparent',
+        color: 'white',
       },
     });
   }, []);
+
+  const handlePress = (room: any) => {
+    setSelectedRoom(room.name);
+    setRoomId(room.id);
+  };
+
+  console.log(route.params?.available);
+
   return (
     <>
       <ScrollView>
-        {route.params.rooms.map((room, index: number) => (
+        {route.params?.rooms.map((room: any, index: number) => (
           <Pressable
             key={index}
             style={{marginTop: 10, backgroundColor: 'white', padding: 10}}>
@@ -45,7 +55,7 @@ const RoomScreen = () => {
               <Ionicons
                 name="information-circle-outline"
                 size={24}
-                color="#007FFF"
+                color="#350b11"
               />
             </View>
             <Text style={{marginTop: 3, color: 'black', fontSize: 16}}>
@@ -67,14 +77,14 @@ const RoomScreen = () => {
                   color: 'red',
                   textDecorationLine: 'line-through',
                 }}>
-                {route.params.oldPrice}
+                {room?.oldPrice}
               </Text>
               <Text
                 style={{
                   fontSize: 18,
                   color: 'black',
                 }}>
-                {route.params.newPrice}
+                {room.newPrice}
               </Text>
             </View>
             <Aminities />
@@ -91,8 +101,8 @@ const RoomScreen = () => {
                   alignItems: 'center',
                 }}
                 onPress={() => {
-                  setSelectedRoom(
-                    selectedRoom.filter(item => item !== room.name),
+                  setSelectedRoom(prevSelectedRoom =>
+                    prevSelectedRoom.filter(item => item !== room.name),
                   );
                 }}>
                 <Text
@@ -115,9 +125,9 @@ const RoomScreen = () => {
               </Pressable>
             ) : (
               <Pressable
-                onPress={() => setSelectedRoom(room.name)}
+                onPress={() => handlePress(room)}
                 style={{
-                  borderColor: '#007FFF',
+                  borderColor: '#350b11',
                   borderWidth: 2,
                   borderRadius: 6,
                   padding: 10,
@@ -127,7 +137,7 @@ const RoomScreen = () => {
                     textAlign: 'center',
                     fontWeight: '700',
                     fontSize: 16,
-                    color: '#007FFF',
+                    color: '#350b11',
                   }}>
                   SELECT
                 </Text>
@@ -141,6 +151,8 @@ const RoomScreen = () => {
         <Pressable
           onPress={() =>
             navigation.navigate('User', {
+              roomId: roomid,
+              roomName: selectedRoom,
               oldPrice: route.params.oldPrice,
               newPrice: route.params.newPrice,
               name: route.params.name,
@@ -152,15 +164,19 @@ const RoomScreen = () => {
             })
           }
           style={{
-            backgroundColor: '#007FFF',
+            backgroundColor: '#350b11',
             padding: 8,
-            marginBottom: 30,
+            marginBottom: 20,
             borderRadius: 3,
             marginHorizontal: 15,
+
+            height: 45,
           }}>
           <Text
             style={{
               textAlign: 'center',
+              justifyContent: 'center',
+              fontSize: 16,
               color: 'white',
               fontWeight: 'bold',
             }}>
