@@ -2,8 +2,9 @@ import {View, Text, FlatList, Pressable, Image} from 'react-native';
 import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 
-const SearchResults = ({data, input, setInput}) => {
+const SearchResults = ({data, input, setInput, id, setid}: any) => {
   const navigation = useNavigation();
+
   return (
     <View style={{padding: 10}}>
       <FlatList
@@ -14,8 +15,12 @@ const SearchResults = ({data, input, setInput}) => {
               return (
                 <Pressable
                   onPress={() => {
-                    setInput(item.place);
-                    navigation.navigate('Home', {input: item.place});
+                    setInput({item: item.place});
+                    setid({id: item.id});
+                    navigation.navigate('Home', {
+                      input: item.place,
+                      id: item.id,
+                    });
                   }}
                   style={{
                     flexDirection: 'row',
@@ -46,8 +51,11 @@ const SearchResults = ({data, input, setInput}) => {
               return (
                 <Pressable
                   onPress={() => {
-                    setInput(item.place);
-                    navigation.navigate('Home', {input: item.place});
+                    setInput({item: item.place, id: item.id});
+                    navigation.navigate('Home', {
+                      input: item.place,
+                      id: item.id,
+                    });
                   }}
                   style={{
                     flexDirection: 'row',

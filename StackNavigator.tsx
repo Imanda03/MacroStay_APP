@@ -1,5 +1,5 @@
 import {View, Text} from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Home from './screens/HomeScreen';
@@ -17,6 +17,8 @@ import UserScreen from './screens/UserScreen';
 import ConfirmationScreen from './screens/ConfirmationScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import LoadingScreen from './screens/LoadingScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -40,7 +42,7 @@ function BottomTabs() {
         }}
       />
 
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Saved"
         component={SavedScreens}
         options={{
@@ -53,7 +55,7 @@ function BottomTabs() {
               <Ionicons name="heart-outline" size={24} color="black" />
             ),
         }}
-      />
+      /> */}
 
       <Tab.Screen
         name="Booking"

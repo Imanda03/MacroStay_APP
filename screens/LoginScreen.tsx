@@ -5,46 +5,98 @@ import {
   KeyboardAvoidingView,
   TextInput,
   Pressable,
+  Alert,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import {auth} from '../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {signInWithCredential, signInWithEmailAndPassword} from 'firebase/auth';
+import axios from 'axios';
+import {useMutation} from '@tanstack/react-query';
+import LoadingScreen from './LoadingScreen';
 
-const LoginScreen = () => {
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
+const loginUser = async ({email, password}: LoginFormData): Promise<any> => {
+  try {
+    const response = await axios.post(
+      'http://192.168.68.138:8000/api/auth/login',
+      {email, password},
+    );
+
+    const userData = response.data;
+    return userData;
+  } catch (error: any) {
+    console.error('Login Failed', error?.response?.data?.message);
+  }
+};
+
+const LoginScreen = ({navigation}: any) => {
+  const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const navigation = useNavigation();
+  const expirationTime = Date.now() + 7 * 24 * 60 * 60 * 1000;
+  const mutation = useMutation<any, Error, LoginFormData, unknown>({
+    mutationFn: loginUser,
+    onSuccess: async (data: any) => {
+      console.log('login successful', data);
+      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(data.user));
+      await AsyncStorage.setItem(
+        'tokenExpirationTime',
+        expirationTime.toString(),
+      );
+    },
+    onError: (error: any) => {
+      console.error('login error', error.data);
+    },
+  });
 
   useEffect(() => {
     const getMyObject = async () => {
+      const timeout = expirationTime - Date.now();
       try {
-        const jsonValue = await AsyncStorage.getItem('tokenUser');
-        if (jsonValue) {
+        const jsonValue = await AsyncStorage.getItem('token');
+        const user = await AsyncStorage.getItem('user');
+        if (jsonValue && user) {
           navigation.navigate('Main');
+          setLoading(false);
+        } else {
+          setLoading(false);
         }
       } catch (error) {
         console.log(error);
+        setLoading(false);
       }
+      setTimeout(async () => {
+        await AsyncStorage.removeItem('token');
+        await AsyncStorage.removeItem('user');
+        await AsyncStorage.removeItem('tokenExpiration');
+        console.log('Token and user data removed after expiration');
+      }, timeout);
     };
+
     getMyObject();
-  });
+  }, [navigation]);
 
   const login = () => {
-    signInWithEmailAndPassword(auth, email, password).then(
-      async userCredentials => {
-        const user = userCredentials.user;
-        const uid = user.uid;
-        AsyncStorage.setItem(
-          'tokenUser',
-          await userCredentials.user.getIdToken(uid),
-        );
-        navigation.navigate('Main');
-      },
-    );
+    if (email === '' || password === '') {
+      Alert.alert('Invalid Details', 'Please enter all your information', [
+        {
+          text: 'OK',
+        },
+      ]);
+    } else {
+      mutation.mutate({email, password});
+      navigation.navigate('Main');
+    }
   };
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <SafeAreaView
       style={{
@@ -114,7 +166,7 @@ const LoginScreen = () => {
         </View>
 
         <Pressable
-          onPress={() => login()}
+          onPress={login}
           style={{
             width: 200,
             backgroundColor: '#003580',

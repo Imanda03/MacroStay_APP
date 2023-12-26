@@ -1,13 +1,37 @@
 import {View, Text, Pressable} from 'react-native';
-import React, {useLayoutEffect} from 'react';
-import {useSelector} from 'react-redux';
+import React, {useLayoutEffect, useState} from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {UseQueryResult, useMutation, useQuery} from '@tanstack/react-query';
+import {BookingData, fetchBookingData} from '../api/auth';
 
 const BookingScreen = () => {
+  const [userId, setUserId] = useState<number>(0);
+  const [booking, setBooking] = useState<any>({});
   const navigation = useNavigation();
-  const bookings = useSelector(state => state.booking.booking);
+
+  const {data, error, isLoading}: UseQueryResult<any, Error> = useQuery({
+    queryKey: ['bookingData'],
+    queryFn: fetchBookingData,
+  });
   useLayoutEffect(() => {
+    const getValueFromAsyncStorage = async () => {
+      try {
+        const value = await AsyncStorage.getItem('user'); // Replace '@key' with the key you used to store the value
+        if (value !== null) {
+          const data = JSON.parse(value); // Set the retrieved value to the state
+          setUserId(data.id);
+        } else {
+          console.log('Value not found in AsyncStorage');
+        }
+      } catch (error: any) {
+        console.error(
+          'Error retrieving value from AsyncStorage:',
+          error.message,
+        );
+      }
+    };
     navigation.setOptions({
       headerShown: true,
       title: '                             Bookings',
@@ -17,18 +41,29 @@ const BookingScreen = () => {
         color: 'white',
       },
       headerStyle: {
-        backgroundColor: '#003580',
+        backgroundColor: '#350b11',
         height: 100,
         borderBottomColor: 'transparent',
         shadowColor: 'transparent',
       },
     });
+    getValueFromAsyncStorage();
   }, []);
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
+  if (error) {
+    return <Text>No Data</Text>;
+  }
+
   return (
     <View>
-      {bookings.length > 0 &&
-        bookings.map(item => (
-          <Pressable style={{backgroundColor: 'white', marginTop: 10}}>
+      {data
+        ?.filter((value: any) => value.userId === userId)
+        .map((item: any, index: number) => (
+          <Pressable
+            key={index}
+            style={{backgroundColor: 'white', marginTop: 10}}>
             <View
               style={{
                 marginHorizontal: 12,
@@ -36,12 +71,37 @@ const BookingScreen = () => {
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                padding: 10,
               }}>
               <View>
                 <Text
                   style={{color: 'black', fontSize: 25, fontWeight: 'bold'}}>
-                  {item.name}
+                  {item.hotelName}
                 </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    margin: 10,
+                    gap: 80,
+                  }}>
+                  <Text
+                    style={{color: 'black', fontSize: 16, fontWeight: '600'}}>
+                    {item.roomName}
+                  </Text>
+                  <Text style={{color: 'black', fontSize: 16}}>
+                    Total cost: {item.price}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    margin: 10,
+                    gap: 80,
+                  }}>
+                  {/* <Text style={{color: 'black', fontSize: 16}}>
+                    Total cost: {item.checkInDate}
+                  </Text> */}
+                </View>
                 <View
                   style={{
                     flexDirection: 'row',
@@ -57,7 +117,7 @@ const BookingScreen = () => {
                   <Text style={{color: 'black'}}>{item.rating}</Text>
                   <View
                     style={{
-                      backgroundColor: '#003580',
+                      backgroundColor: '#855a5a',
                       paddingVertical: 3,
                       borderRadius: 5,
                       width: 100,

@@ -3,7 +3,6 @@ import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
-
 const PropertyCard = ({
   rooms,
   children,
@@ -11,9 +10,12 @@ const PropertyCard = ({
   adults,
   selectedDates,
   availableRooms,
-}) => {
+}: any) => {
   const {width, height} = Dimensions.get('window');
   const navigation = useNavigation();
+
+  console.log(property.rooms);
+
   return (
     <View>
       <Pressable
@@ -27,7 +29,7 @@ const PropertyCard = ({
             availableRooms: property.rooms,
             adults: adults,
             children: children,
-            rooms: rooms,
+            id: property.rooms,
             selectedDates: selectedDates,
           })
         }
@@ -47,7 +49,9 @@ const PropertyCard = ({
               justifyContent: 'space-between',
             }}>
             <Text style={{color: 'black', width: 180}}>{property.name}</Text>
-            <Ionicons name="heart-outline" size={24} color="red" />
+            <Pressable>
+              <Ionicons name="heart-outline" size={24} color="red" />
+            </Pressable>
           </View>
           <View
             style={{
@@ -64,7 +68,7 @@ const PropertyCard = ({
             <Text style={{color: 'black'}}>{property.rating}</Text>
             <View
               style={{
-                backgroundColor: '#6CB4EE',
+                backgroundColor: '#9e8d8e',
                 paddingVertical: 3,
                 borderRadius: 5,
                 width: 90,
@@ -82,9 +86,9 @@ const PropertyCard = ({
               fontWeight: 'bold',
               fontSize: 12,
             }}>
-            {property.address.length > 50
-              ? property.address.substr(0, 50)
-              : property.address}
+            {property.addresses.length > 50
+              ? property.addresses.substr(0, 50)
+              : property.addresses}
           </Text>
           <Text
             style={{
@@ -108,14 +112,14 @@ const PropertyCard = ({
                 fontSize: 15,
                 textDecorationLine: 'line-through',
               }}>
-              {property.oldPrice * adults}
+              {property.newPrice * adults}
             </Text>
             <Text
               style={{
                 color: 'black',
                 fontSize: 15,
               }}>
-              Rs. {property.newPrice * adults}
+              Rs. {property.oldPrice * adults}
             </Text>
           </View>
           <View style={{marginTop: 2}}>
@@ -124,7 +128,7 @@ const PropertyCard = ({
           </View>
           <View
             style={{
-              backgroundColor: '#6082B6',
+              backgroundColor: '#69464a',
               paddingVertical: 2,
               marginTop: 2,
               borderRadius: 5,

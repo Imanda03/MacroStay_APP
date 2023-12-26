@@ -7,11 +7,11 @@ const Header = () => {
   return (
     <View
       style={{
-        backgroundColor: '#003580',
+        backgroundColor: '#350b11',
         height: 65,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-around',
+        // justifyContent: 'space-around',
       }}>
       <Pressable
         style={{
@@ -20,7 +20,7 @@ const Header = () => {
           borderColor: 'white',
           borderWidth: 1,
           borderRadius: 25,
-          padding: 8,
+          padding: 5,
         }}>
         <Ionicons name="bed-outline" size={26} color="white" />
         <Text
@@ -34,7 +34,7 @@ const Header = () => {
         </Text>
       </Pressable>
 
-      <Pressable
+      {/* <Pressable
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -83,7 +83,7 @@ const Header = () => {
           }}>
           Taxi
         </Text>
-      </Pressable>
+      </Pressable> */}
     </View>
   );
 };

@@ -1,17 +1,19 @@
-import {View, Text} from 'react-native';
 import React from 'react';
 import StackNavigator from './StackNavigator';
 import {ModalPortal} from 'react-native-modals';
-import {Provider} from 'react-redux';
-import store from './store';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const App = () => {
   return (
     <>
-      <Provider store={store}>
-        <StackNavigator />
-        <ModalPortal />
-      </Provider>
+      <QueryClientProvider client={queryClient}>
+        <>
+          <StackNavigator />
+          <ModalPortal />
+        </>
+      </QueryClientProvider>
     </>
   );
 };

@@ -2,8 +2,10 @@ import {SafeAreaView, StyleSheet, Text, TextInput, View} from 'react-native';
 import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SearchResults from '../components/SearchResults';
+import {UseQueryResult, useQuery} from '@tanstack/react-query';
+import {fetchData} from '../api/auth';
 
-export const data = [
+export const datas = [
   {
     id: '0',
     place: 'Kathmandu',
@@ -68,10 +70,6 @@ export const data = [
             id: '108',
             image:
               'https://cf.bstatic.com/xdata/images/hotel/max1280x900/433845673.jpg?k=24dd44dc2ac1bfda8aabdbff24571d211f42a4b5cf175fc9043113b61f57f670&o=&hp=1',
-          },
-          {
-            id: '109',
-            image: '2',
           },
         ],
         rooms: [
@@ -471,7 +469,16 @@ export const data = [
 
 const SearchScreen = () => {
   const [input, setInput] = useState('');
+  const [id, setid] = useState<number>();
 
+  const {data, error, isLoading}: UseQueryResult<any, Error> = useQuery({
+    queryKey: ['searchData'],
+    queryFn: fetchData,
+  });
+
+  if (isLoading) {
+    return <Text style={{color: 'black', fontSize: 24}}>Loading....</Text>;
+  }
   return (
     <SafeAreaView>
       <View
@@ -495,7 +502,13 @@ const SearchScreen = () => {
         <Ionicons name="search-sharp" size={22} color="black" />
       </View>
 
-      <SearchResults data={data} input={input} setInput={setInput} />
+      <SearchResults
+        data={data}
+        input={input}
+        setid={setid}
+        setInput={setInput}
+        id={id}
+      />
     </SafeAreaView>
   );
 };

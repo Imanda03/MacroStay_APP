@@ -19,14 +19,14 @@ const PropertyInfoScreen = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      title: `            ${route.params.name}`,
+      title: `            ${route.params?.name}`,
       headerTitleStyle: {
         fontSize: 20,
         fontWeight: 'bold',
         color: 'white',
       },
       headerStyle: {
-        backgroundColor: '#003580',
+        backgroundColor: '#350b11',
         height: 100,
         borderBottomColor: 'transparent',
         shadowColor: 'transparent',
@@ -46,20 +46,24 @@ const PropertyInfoScreen = () => {
   const offPrice = (Math.abs(difference) / route.params.oldPrice) * 100;
 
   return (
-    <SafeAreaView>
+    <SafeAreaView key={route.params.name}>
       <ScrollView style={{marginBottom: 40}}>
         <Pressable
           style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
-          {route.params.photos.slice(0, 5).map(photo => (
-            <View style={{margin: 5}}>
-              <Image
-                style={{
-                  width: 120,
-                  height: pixelNormalize(80),
-                  borderRadius: pixelNormalize(4),
-                }}
-                source={{uri: photo.image}}
-              />
+          {route?.params?.photos.slice(0, 5).map((photo: any) => (
+            <View key={photo.id} style={{margin: 5}}>
+              {photo.image &&
+                Object.values(photo.image).map((image, index) => (
+                  <Image
+                    key={index}
+                    style={{
+                      width: 120,
+                      height: pixelNormalize(80),
+                      borderRadius: pixelNormalize(4),
+                    }}
+                    source={{uri: image}}
+                  />
+                ))}
             </View>
           ))}
           <Pressable style={{alignItems: 'center', justifyContent: 'center'}}>
@@ -96,7 +100,7 @@ const PropertyInfoScreen = () => {
               <Text style={{color: 'black'}}>{route.params.rating}</Text>
               <View
                 style={{
-                  backgroundColor: '#003580',
+                  backgroundColor: '#69464a',
                   paddingVertical: 3,
                   borderRadius: 5,
                   width: 100,
@@ -278,7 +282,7 @@ const PropertyInfoScreen = () => {
           })
         }
         style={{
-          backgroundColor: '#006DA4',
+          backgroundColor: '#422222',
           position: 'absolute',
           bottom: 20,
           padding: 15,

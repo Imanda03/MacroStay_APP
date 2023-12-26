@@ -1,10 +1,11 @@
 import {View, Text, Pressable} from 'react-native';
-import React, {useLayoutEffect} from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useDispatch} from 'react-redux';
-import {savedPlaces} from '../SavedReducer';
 import notifee from '@notifee/react-native';
+import {useMutation} from '@tanstack/react-query';
+import {BookingData, bookingPost} from '../api/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 async function onDisplayNotification(name: string, place: string) {
   // Request permissions (required for iOS)
@@ -30,10 +31,39 @@ async function onDisplayNotification(name: string, place: string) {
 }
 
 const ConfirmationScreen = () => {
-  const dispatch = useDispatch();
+  const [userId, setUserId] = useState<number>(0);
   const navigation = useNavigation();
   const route = useRoute();
+
+  // console.log(route.params);
+
+  const mutation = useMutation<any, Error, BookingData, unknown>({
+    mutationFn: bookingPost,
+    onSuccess: async (data: any) => {
+      console.log(data);
+    },
+    onError: async (data: any) => {
+      console.error('Booking Error', data);
+    },
+  });
+
   useLayoutEffect(() => {
+    const getValueFromAsyncStorage = async () => {
+      try {
+        const value = await AsyncStorage.getItem('user'); // Replace '@key' with the key you used to store the value
+        if (value !== null) {
+          const data = JSON.parse(value); // Set the retrieved value to the state
+          setUserId(data.id);
+        } else {
+          console.log('Value not found in AsyncStorage');
+        }
+      } catch (error: any) {
+        console.error(
+          'Error retrieving value from AsyncStorage:',
+          error.message,
+        );
+      }
+    };
     navigation.setOptions({
       headerShown: true,
       title: `            Confirmation`,
@@ -43,17 +73,26 @@ const ConfirmationScreen = () => {
         color: 'white',
       },
       headerStyle: {
-        backgroundColor: '#003580',
+        backgroundColor: '#350b11',
         height: 100,
         borderBottomColor: 'transparent',
         shadowColor: 'transparent',
       },
     });
+    getValueFromAsyncStorage();
   }, []);
 
   const confirmBooking = () => {
-    dispatch(savedPlaces(route.params));
-    onDisplayNotification(route.params.personName, route.params.name);
+    mutation.mutate({
+      hotelName: route.params?.name,
+      roomName: route.params?.roomName,
+      price: route.params?.newPrice,
+      checkInDate: route.params?.startDate,
+      checkOutDate: route.params?.endDate,
+      userId: userId,
+      roomId: route.params?.roomid,
+    });
+    onDisplayNotification(route.params?.personName, route.params?.name);
     navigation.replace('Main');
   };
   return (
@@ -69,7 +108,7 @@ const ConfirmationScreen = () => {
           }}>
           <View>
             <Text style={{color: 'black', fontSize: 25, fontWeight: 'bold'}}>
-              {route.params.name}
+              {route.params?.name}
             </Text>
             <View
               style={{
@@ -83,10 +122,10 @@ const ConfirmationScreen = () => {
                 color="green"
                 size={24}
               />
-              <Text style={{color: 'black'}}>{route.params.rating}</Text>
+              <Text style={{color: 'black'}}>{route.params?.rating}</Text>
               <View
                 style={{
-                  backgroundColor: '#003580',
+                  backgroundColor: '#855a5a',
                   paddingVertical: 3,
                   borderRadius: 5,
                   width: 100,
@@ -130,7 +169,7 @@ const ConfirmationScreen = () => {
               Check In
             </Text>
             <Text style={{color: '#007FFF', fontSize: 16, fontWeight: 'bold'}}>
-              {route.params.startDate}
+              {route.params?.startDate}
             </Text>
           </View>
 
@@ -145,7 +184,7 @@ const ConfirmationScreen = () => {
               Check Out
             </Text>
             <Text style={{color: '#007FFF', fontSize: 16, fontWeight: 'bold'}}>
-              {route.params.endDate}
+              {route.params?.endDate}
             </Text>
           </View>
         </View>
@@ -166,15 +205,15 @@ const ConfirmationScreen = () => {
               fontSize: 16,
               fontWeight: 'bold',
             }}>
-            {route.params.rooms} rooms {route.params.adults} adults{' '}
-            {route.params.children} children
+            {route.params?.rooms} rooms {route.params?.adults} adults{' '}
+            {route.params?.children} children
           </Text>
         </View>
 
         <Pressable
           onPress={confirmBooking}
           style={{
-            backgroundColor: '#003580',
+            backgroundColor: '#5e3c3c',
             width: 120,
             padding: 5,
             marginHorizontal: 12,

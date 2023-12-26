@@ -1,12 +1,14 @@
 import {View, Text, TextInput, Pressable, Alert} from 'react-native';
 import React, {useLayoutEffect, useState} from 'react';
 import {useNavigation, useRoute} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UserScreen = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNo, setPhoneNo] = useState('');
+  const [storedEmail, setStoredEmail] = useState('');
 
   const navigation = useNavigation();
   const route = useRoute();
@@ -20,12 +22,28 @@ const UserScreen = () => {
         color: 'white',
       },
       headerStyle: {
-        backgroundColor: '#003580',
+        backgroundColor: '#350b11',
         height: 100,
         borderBottomColor: 'transparent',
         shadowColor: 'transparent',
       },
     });
+    const getValueFromAsyncStorage = async () => {
+      try {
+        const value = await AsyncStorage.getItem('user'); // Replace '@key' with the key you used to store the value
+        if (value !== null) {
+          console.log('Value from AsyncStorage:', value);
+          setStoredEmail(value?.username); // Set the retrieved value to the state
+        } else {
+          console.log('Value not found in AsyncStorage');
+        }
+      } catch (error: any) {
+        console.error(
+          'Error retrieving value from AsyncStorage:',
+          error.message,
+        );
+      }
+    };
   }, []);
 
   const finalStep = () => {
@@ -35,9 +53,14 @@ const UserScreen = () => {
           text: 'OK',
         },
       ]);
+      if (email != storedEmail) {
+        Alert.alert('Invalid Email', 'Please enter your correct email address');
+      }
     }
     if (firstName && lastName && email && phoneNo) {
       navigation.navigate('Confirmation', {
+        roomid: route.params.roomId,
+        roomName: route.params.roomName,
         oldPrice: route.params.oldPrice,
         newPrice: route.params.newPrice,
         name: route.params.name,
@@ -153,7 +176,7 @@ const UserScreen = () => {
 
         <Pressable
           onPress={() => finalStep()}
-          style={{backgroundColor: '#007FFF', padding: 10, borderRadius: 5}}>
+          style={{backgroundColor: '#4d2f2f', padding: 10, borderRadius: 5}}>
           <Text style={{textAlign: 'center', color: 'white', fontSize: 15}}>
             Final Step
           </Text>
