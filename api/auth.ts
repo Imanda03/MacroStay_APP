@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.68.138:8000/api/';
+const API_BASE_URL = 'http://192.168.215.3:8000/api/';
 
 export interface RegisterFormData {
   username: string;
@@ -41,25 +41,25 @@ export const bookingPost = async (data: BookingData) => {
 };
 
 export const fetchData = async () => {
-  const response = await fetch('http://192.168.68.138:8000/api/location/');
+  const response = await fetch('http://192.168.215.3:8000/api/location/');
   const data = await response.json();
   return data;
 };
 
 export const fetchProperty = async () => {
-  const response = await fetch(`http://192.168.68.138:8000/api/property/`);
+  const response = await fetch(`http://192.168.215.3:8000/api/property/`);
   const data = await response.json();
   return data;
 };
 
 export const fetchRoom = async () => {
-  const response = await fetch('http://192.168.68.138:8000/api/room/');
+  const response = await fetch('http://192.168.215.3:8000/api/room/');
   const data = await response.json();
   return data;
 };
 
 export const fetchBookingData = async () => {
-  const response = await fetch('http://192.168.68.138:8000/api/booking/');
+  const response = await fetch('http://192.168.215.3:8000/api/booking/');
   const data = await response.json();
   return data;
 };
